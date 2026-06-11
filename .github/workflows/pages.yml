@@ -36,7 +36,7 @@ jobs:
         run: retaildq demo --config configs/ci.yaml
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site/generated
 
