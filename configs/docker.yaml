@@ -1,0 +1,25 @@
+project:
+  name: retaildq-lakehouse
+  environment: docker
+paths:
+  data_dir: /app/data
+  site_dir: /app/site/generated
+  examples_dir: /app/examples/demo
+  warehouse_path: /app/data/retaildq.duckdb
+generator:
+  seed: 42
+  days: 10
+  orders: 250
+  invalid_rate: 0.08
+  customers: 90
+  products: 50
+  stores: 6
+quality:
+  max_invalid_rate: 0.15
+  fail_on_error: true
+  freshness_max_days: 3
+  anomaly_revenue_zscore: 4.0
+demo:
+  run_id_prefix: docker-demo
+  clean_demo_outputs: true
+  site_title: RetailDQ Docker Demo

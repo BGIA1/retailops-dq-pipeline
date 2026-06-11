@@ -1,0 +1,31 @@
+entity: customers
+description: Synthetic customer dimension without PII.
+primary_key: customer_id
+columns:
+  customer_id:
+    type: string
+    nullable: false
+    pattern: "^CUST-[0-9]{6}$"
+  segment:
+    type: string
+    nullable: false
+    accepted_values: [consumer, corporate, home_office]
+  region:
+    type: string
+    nullable: false
+    accepted_values: [north, central, south, online]
+  created_at:
+    type: date
+    nullable: false
+  is_active:
+    type: boolean
+    nullable: false
+quality:
+  - rule_id: customers_pk_unique
+    type: uniqueness
+    column: customer_id
+    severity: error
+  - rule_id: customers_created_not_future
+    type: future_date
+    column: created_at
+    severity: error

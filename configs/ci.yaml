@@ -1,0 +1,25 @@
+project:
+  name: retaildq-lakehouse
+  environment: ci
+paths:
+  data_dir: data
+  site_dir: site/generated
+  examples_dir: examples/demo
+  warehouse_path: data/retaildq.duckdb
+generator:
+  seed: 123
+  days: 7
+  orders: 120
+  invalid_rate: 0.10
+  customers: 60
+  products: 40
+  stores: 5
+quality:
+  max_invalid_rate: 0.20
+  fail_on_error: true
+  freshness_max_days: 3
+  anomaly_revenue_zscore: 4.0
+demo:
+  run_id_prefix: ci-demo
+  clean_demo_outputs: true
+  site_title: RetailDQ CI Demo

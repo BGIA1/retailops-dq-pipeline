@@ -1,0 +1,33 @@
+project:
+  name: retaildq-lakehouse
+  environment: azure-sample
+paths:
+  data_dir: /mnt/adls
+  site_dir: /mnt/adls/reports/site
+  examples_dir: /mnt/adls/reports/examples
+  warehouse_path: /tmp/retaildq.duckdb
+generator:
+  seed: 42
+  days: 30
+  orders: 10000
+  invalid_rate: 0.03
+  customers: 3000
+  products: 500
+  stores: 25
+quality:
+  max_invalid_rate: 0.05
+  fail_on_error: true
+  freshness_max_days: 2
+  anomaly_revenue_zscore: 4.0
+azure:
+  storage_account_url: https://<storage-account>.dfs.core.windows.net
+  filesystem_raw: raw
+  filesystem_silver: silver
+  filesystem_gold: gold
+  filesystem_quarantine: quarantine
+  filesystem_reports: reports
+  auth_mode: managed_identity_or_workload_identity
+demo:
+  run_id_prefix: azure-ready
+  clean_demo_outputs: false
+  site_title: RetailDQ Azure-Ready Demo

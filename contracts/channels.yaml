@@ -1,0 +1,16 @@
+entity: channels
+description: Synthetic sales channel reference table.
+primary_key: channel
+columns:
+  channel:
+    type: string
+    nullable: false
+    accepted_values: [web, mobile, marketplace, store]
+  description:
+    type: string
+    nullable: false
+quality:
+  - rule_id: channels_pk_unique
+    type: uniqueness
+    column: channel
+    severity: error

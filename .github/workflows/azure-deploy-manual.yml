@@ -1,0 +1,100 @@
+name: Manual Azure Deployment Template
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmDeploy:
+        description: "Type I_UNDERSTAND_COSTS to allow this manual Azure deployment."
+        required: true
+        default: "false"
+      imageTag:
+        description: "Container image tag to build and push."
+        required: true
+        default: "manual-demo"
+      resourceGroup:
+        description: "Existing Azure resource group name."
+        required: true
+        default: "rg-retaildq-demo-placeholder"
+      location:
+        description: "Azure region for Bicep deployment."
+        required: true
+        default: "eastus"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: azure-demo
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: Guardrail confirmation
+        run: |
+          if [ "${{ inputs.confirmDeploy }}" != "I_UNDERSTAND_COSTS" ]; then
+            echo "Manual Azure deployment skipped. Re-run with confirmDeploy=I_UNDERSTAND_COSTS after budget review."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Validate required Azure variables
+        run: |
+          test -n "${AZURE_CLIENT_ID}"
+          test -n "${AZURE_TENANT_ID}"
+          test -n "${AZURE_SUBSCRIPTION_ID}"
+          echo "Using OIDC federation. No long-lived Azure secrets are required."
+
+      - name: Build Bicep
+        run: az bicep build --file infra/azure/main.bicep
+
+      - name: Build container image locally in runner
+        run: docker build -t retaildq-lakehouse:${{ inputs.imageTag }} .
+
+      - name: What-if preview
+        run: |
+          az deployment group what-if \
+            --resource-group "${{ inputs.resourceGroup }}" \
+            --template-file infra/azure/main.bicep \
+            --parameters location="${{ inputs.location }}" containerImage="placeholder.azurecr.io/retaildq:${{ inputs.imageTag }}"
+
+      - name: Deploy infrastructure template
+        id: deploy
+        run: |
+          DEPLOYMENT_NAME="retaildq-${{ github.run_id }}"
+          az deployment group create \
+            --name "${DEPLOYMENT_NAME}" \
+            --resource-group "${{ inputs.resourceGroup }}" \
+            --template-file infra/azure/main.bicep \
+            --parameters location="${{ inputs.location }}" containerImage="placeholder.azurecr.io/retaildq:${{ inputs.imageTag }}"
+          ACR_NAME="$(az deployment group show --resource-group "${{ inputs.resourceGroup }}" --name "${DEPLOYMENT_NAME}" --query properties.outputs.acrName.value -o tsv)"
+          ACR_LOGIN_SERVER="$(az deployment group show --resource-group "${{ inputs.resourceGroup }}" --name "${DEPLOYMENT_NAME}" --query properties.outputs.acrLoginServer.value -o tsv)"
+          JOB_NAME="$(az deployment group show --resource-group "${{ inputs.resourceGroup }}" --name "${DEPLOYMENT_NAME}" --query properties.outputs.containerAppsJobName.value -o tsv)"
+          echo "acr_name=${ACR_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "acr_login_server=${ACR_LOGIN_SERVER}" >> "${GITHUB_OUTPUT}"
+          echo "job_name=${JOB_NAME}" >> "${GITHUB_OUTPUT}"
+
+      - name: Push image to ACR
+        run: |
+          az acr login --name "${{ steps.deploy.outputs.acr_name }}"
+          docker tag retaildq-lakehouse:${{ inputs.imageTag }} "${{ steps.deploy.outputs.acr_login_server }}/retaildq:${{ inputs.imageTag }}"
+          docker push "${{ steps.deploy.outputs.acr_login_server }}/retaildq:${{ inputs.imageTag }}"
+
+      - name: Update Container Apps Job image
+        run: |
+          az containerapp job update \
+            --resource-group "${{ inputs.resourceGroup }}" \
+            --name "${{ steps.deploy.outputs.job_name }}" \
+            --image "${{ steps.deploy.outputs.acr_login_server }}/retaildq:${{ inputs.imageTag }}"

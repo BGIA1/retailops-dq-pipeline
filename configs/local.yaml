@@ -1,0 +1,25 @@
+project:
+  name: retaildq-lakehouse
+  environment: local
+paths:
+  data_dir: data
+  site_dir: site/generated
+  examples_dir: examples/demo
+  warehouse_path: data/retaildq.duckdb
+generator:
+  seed: 42
+  days: 14
+  orders: 500
+  invalid_rate: 0.08
+  customers: 140
+  products: 80
+  stores: 8
+quality:
+  max_invalid_rate: 0.12
+  fail_on_error: true
+  freshness_max_days: 3
+  anomaly_revenue_zscore: 4.0
+demo:
+  run_id_prefix: demo
+  clean_demo_outputs: true
+  site_title: RetailDQ Lakehouse Pipeline Demo

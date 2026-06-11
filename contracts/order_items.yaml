@@ -1,0 +1,56 @@
+entity: order_items
+description: Synthetic order line item fact table.
+primary_key: order_item_id
+columns:
+  order_item_id:
+    type: string
+    nullable: false
+    pattern: "^ITEM-[0-9]{10}$"
+  order_id:
+    type: string
+    nullable: false
+  product_id:
+    type: string
+    nullable: false
+  quantity:
+    type: integer
+    nullable: false
+    min: 1
+    max: 100
+  unit_price:
+    type: float
+    nullable: false
+    min: 0.01
+    max: 5000.0
+foreign_keys:
+  - column: order_id
+    references:
+      entity: orders
+      column: order_id
+  - column: product_id
+    references:
+      entity: products
+      column: product_id
+quality:
+  - rule_id: order_items_pk_unique
+    type: uniqueness
+    column: order_item_id
+    severity: error
+  - rule_id: order_items_quantity_positive
+    type: numeric_range
+    column: quantity
+    min: 1
+    severity: error
+  - rule_id: order_items_unit_price_positive
+    type: numeric_range
+    column: unit_price
+    min: 0.01
+    severity: error
+  - rule_id: order_items_order_fk
+    type: referential_integrity
+    column: order_id
+    severity: error
+  - rule_id: order_items_product_fk
+    type: referential_integrity
+    column: product_id
+    severity: error

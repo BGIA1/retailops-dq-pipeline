@@ -1,0 +1,11 @@
+services:
+  retaildq:
+    build:
+      context: .
+    image: retaildq-lakehouse:local
+    working_dir: /app
+    command: ["retaildq", "demo", "--config", "configs/docker.yaml"]
+    volumes:
+      - ./data:/app/data
+      - ./site/generated:/app/site/generated
+      - ./examples/demo:/app/examples/demo

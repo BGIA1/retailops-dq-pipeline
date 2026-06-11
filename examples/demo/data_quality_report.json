@@ -1,0 +1,10 @@
+{
+  "run_id": "docker-demo-sample",
+  "status": "pass",
+  "passed": true,
+  "invalid_rate": 0.041346153846153845,
+  "max_invalid_rate": 0.15,
+  "total_records": 1040,
+  "invalid_records": 43,
+  "quarantine_path": "/app/data/quarantine/docker-demo-sample"
+}

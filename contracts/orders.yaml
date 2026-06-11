@@ -1,0 +1,70 @@
+entity: orders
+description: Synthetic order header fact table.
+primary_key: order_id
+columns:
+  order_id:
+    type: string
+    nullable: false
+    pattern: "^ORD-[0-9]{8}$"
+  customer_id:
+    type: string
+    nullable: false
+  store_id:
+    type: string
+    nullable: false
+  channel:
+    type: string
+    nullable: false
+    accepted_values: [web, mobile, marketplace, store]
+  order_status:
+    type: string
+    nullable: false
+    accepted_values: [created, paid, shipped, cancelled, refunded]
+  order_date:
+    type: date
+    nullable: false
+  created_at:
+    type: datetime
+    nullable: false
+foreign_keys:
+  - column: customer_id
+    references:
+      entity: customers
+      column: customer_id
+  - column: store_id
+    references:
+      entity: stores
+      column: store_id
+  - column: channel
+    references:
+      entity: channels
+      column: channel
+quality:
+  - rule_id: orders_pk_unique
+    type: uniqueness
+    column: order_id
+    severity: error
+  - rule_id: orders_status_catalog
+    type: accepted_values
+    column: order_status
+    severity: error
+  - rule_id: orders_channel_catalog
+    type: accepted_values
+    column: channel
+    severity: error
+  - rule_id: orders_no_future_date
+    type: future_date
+    column: order_date
+    severity: error
+  - rule_id: orders_customer_fk
+    type: referential_integrity
+    column: customer_id
+    severity: error
+  - rule_id: orders_store_fk
+    type: referential_integrity
+    column: store_id
+    severity: error
+  - rule_id: orders_channel_fk
+    type: referential_integrity
+    column: channel
+    severity: error
