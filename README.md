@@ -3,6 +3,12 @@
 ![CI](https://github.com/BGIA1/retailops-dq-pipeline/actions/workflows/ci.yml/badge.svg)
 ![CodeQL](https://github.com/BGIA1/retailops-dq-pipeline/actions/workflows/codeql.yml/badge.svg)
 ![Pages](https://github.com/BGIA1/retailops-dq-pipeline/actions/workflows/pages.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/BGIA1/retailops-dq-pipeline)
+![License](https://img.shields.io/github/license/BGIA1/retailops-dq-pipeline)
+
+**Live demo:** https://bgia1.github.io/retailops-dq-pipeline/  
+**Latest release:** https://github.com/BGIA1/retailops-dq-pipeline/releases/tag/v0.2.0  
+**Status:** Local-first, cloud-deployment-ready, not cloud-deployed.
 
 RetailDQ is a local-first, cloud-ready batch data engineering project for synthetic retail/e-commerce transactions. It demonstrates a production-style lakehouse pipeline with raw, silver, and gold layers; YAML data contracts; data quality gates; invalid record quarantine; DuckDB registration; local observability; Docker packaging; GitHub Actions; and Azure Container Apps Job deployment readiness.
 
