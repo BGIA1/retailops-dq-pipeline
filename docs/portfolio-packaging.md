@@ -44,3 +44,7 @@ The important design choice is that quality checks produce row-level quarantine 
 - Contract compatibility and schema evolution checks.
 - Historical DQ trend marts.
 - Larger synthetic volume benchmarking.
+
+## Release note
+
+This repository is configured for automated releases using Release Please and Conventional Commits.
